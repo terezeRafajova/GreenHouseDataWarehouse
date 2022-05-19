@@ -1,4 +1,4 @@
-
+CREATE DATABASE GreenhouseDB
 /*CREATING TABLES*/
 use GreenhouseDB;
 
@@ -14,22 +14,20 @@ CREATE TABLE Greenhouses
     name varchar (50),
     description varchar (200),
     location varchar (50),
-    area DECIMAL (3,2),
-    co2Preferred DECIMAL (3,2),
-    temperaturePreferred DECIMAL (2,1),
-    humidityPreferred DECIMAL (3,1),
-	actuator BIT DEFAULT 0,
-	owner varchar(50)
-
-    FOREIGN KEY (owner) REFERENCES Accounts(email));
+    area DECIMAL (5,2),
+    co2Preferred DECIMAL (5,2),
+    temperaturePreferred DECIMAL (5,2),
+    humidityPreferred DECIMAL (5,2),
+	actuator BIT DEFAULT 0, ---actiator set 1(on) 0(off)
+	owner varchar(50));
 
 
 CREATE TABLE Logs
 (
  Id_Log int NOT NULL Identity(1,1) PRIMARY KEY ,
- co2 DECIMAL (3,1),
- temperature DECIMAL (2,1) ,
- humidity DECIMAL (3,1) ,
+ co2 DECIMAL (5,2),
+ temperature DECIMAL (5,2) ,
+ humidity DECIMAL (5,2) ,
  date  DATETIME,
  Id_Greenhouse int
 
@@ -56,12 +54,12 @@ CREATE TABLE Routines
 	Id_Plant int
 FOREIGN KEY (Id_Plant) REFERENCES Plants(Id_Plant));
 
-ALTER TABLE Plants
-ADD Type varchar(30);
 
 /*
 DROP TABLE dbo.Greenhouses;
 DROP TABLE dbo.Accounts, dbo.Checklists, dbo.Logs, dbo.Plants;*/
+DROP TABLE dbo.Accounts;
+
 
 /*_______________________QUERIES_______________________*/
 
