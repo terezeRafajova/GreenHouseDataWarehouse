@@ -63,6 +63,59 @@ While @StartDate <= @EndDate
 go 
 
 
+drop table edw.DimTime
+/*Creating time dimension*/
+If not exists(SELECT * from sys.objects where object_id = OBJECT_ID(N'[edw].[DimTime]') AND type in (N'U'))
+CREATE TABLE [edw].[DimTime](
+	[T_ID] [int] NOT NULL,
+	[Time] [datetime] not null, 
+	[Hour] [int] NOT NULL,
+	[Minute] [int] NOT NULL,
+	[Quarter] [int] NOT NULL
+Constraint [PK_DimTime] PRIMARY KEY CLUSTERED
+(
+	[T_ID] ASC
+) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+ 
+ /*ALTER TABLE [edw].[DimTime] ADD CONSTRAIT PK_DimTime PRIMARY KEY(T_ID);
+GO*/
+truncate table edw.DimTime
+/******   Adding data to the table**********/
+declare @hour int;
+declare @minute int;
+declare @defaultTime DateTime; 
+declare @QarterNumber int;
+
+set @defaultTime = CONVERT(Datetime, '2022-01-01 00:00:00', 120)
+set @minute = datepart(minute, @defaultTime)
+set @hour = datepart(hour, @defaultTime)
+
+
+While datepart(day,@defaultTime) = 1
+	Begin
+		set @QarterNumber = 
+			CASE 
+			WHEN (@hour*100+@minute >= 00000 AND @hour*100+@minute <= 559) THEN 0 
+			WHEN (@hour*100+@minute >= 600 AND @hour*100+@minute <= 1159) THEN 1 
+			WHEN (@hour*100+@minute >= 1200 AND @hour*100+@minute <= 1759) THEN 2 
+			WHEN (@hour*100+@minute >= 1800) THEN 3 
+			END 
+		insert into edw.[DimTime]([T_ID], [Time], [Hour],[Minute], [Quarter])
+		select  @hour*100+@minute as [T_ID],
+				@defaultTime as [Time],
+				@hour as [Hour], 
+				@minute as [Minute], 
+				@QarterNumber as [Quarter]
+
+		Set @defaultTime = Dateadd(mi, 1, @defaultTime)
+		set @minute = datepart(minute, @defaultTime)
+		set @hour = datepart(hour, @defaultTime)
+	END
+go 
+
+
+
 CREATE TABLE edw.DimGreenhouse
 (
 	GH_ID int IDENTITY NOT NULL PRIMARY KEY,

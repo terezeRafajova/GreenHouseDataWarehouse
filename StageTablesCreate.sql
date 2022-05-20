@@ -29,15 +29,13 @@ Create table stage.DimDevice
 	PRIMARY KEY (Device_id, Date)
 );
 
-
 Create table stage.FactMeasurement
 (
 	Greenhouse_Id int NOT NULL,
 	Device_Id int NOT NULL, 
-	Date date not null, 
-	Time Time not null, 
+	Date dateTime not null, 
 	TempValue decimal(5,2),
 	HumValue decimal(5,2), 
 	CO2Value decimal(5,2),
-	PRIMARY KEY (GreenHouse_Id, Device_id, Date, Time)
+	PRIMARY KEY (GreenHouse_Id, Device_id, Date)
 );
