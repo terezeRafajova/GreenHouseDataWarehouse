@@ -147,18 +147,18 @@ Create table edw.DimDevice
 Alter table edw.DimDevice add constraint FK_DimDevice_0 foreign key (D_ID) references edw.DimDate (D_ID);
 
 
-
 Create table edw.FactMeasurement
 (
 	GH_ID INT NOT NULL,
 	DE_ID INT NOT NULL,
 	D_ID INT NOT NULL,
-	Time Time not null, 
+	T_ID INT not null, 
 	TempValue decimal(5,2),
 	HumValue decimal(5,2), 
 	CO2Value decimal(5,2)
 );
-ALTER table edw.FactMeasurement add constraint PK_FactMeasurement primary key (D_ID, Time, GH_ID, DE_ID);
+ALTER table edw.FactMeasurement add constraint PK_FactMeasurement primary key (D_ID, T_ID, GH_ID, DE_ID);
 Alter table edw.FactMeasurement add constraint FK_FactMeasurement_0 foreign key (D_ID) references edw.DimDate (D_ID);
 Alter table edw.FactMeasurement add constraint FK_FactMeasurement_1 foreign key (GH_ID) references edw.DimGreenhouse (GH_ID);
 Alter table edw.FactMeasurement add constraint FK_FactMeasurement_3 foreign key (DE_ID) references edw.DimDevice (DE_ID);
+Alter table edw.FactMeasurement add constraint FK_FactMeasurement_4 foreign key (T_ID) references edw.DimTime (T_ID);
