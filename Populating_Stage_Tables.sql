@@ -1,4 +1,4 @@
-use GreenhouseDW
+use GreenHouseDW
 go
 
 truncate table [stage].[DimGreenhouse]

@@ -1,4 +1,4 @@
-use GreenhouseDW
+use GreenHouseDW
 go
 
 insert into [edw].[DimGreenhouse]
@@ -22,7 +22,7 @@ FROM [GreenhouseDW].[stage].[DimGreenhouse]
 
 insert into [edw].[DimDevice]
 ([Device_Id]
-,[date]
+,[D_ID]
 ,[Min_Temp]
 ,[Max_Temp]
 ,[Avrg_Temp]
@@ -34,7 +34,7 @@ insert into [edw].[DimDevice]
 ,[Avrg_CO2])
 SELECT
 [Device_Id],
-CONVERT(date, [Date]),
+d.[D_ID],
 [Min_Temp],
 [Max_Temp],
 [Avrg_Temp],
@@ -44,7 +44,9 @@ CONVERT(date, [Date]),
 [Min_CO2],
 [Max_CO2],
 [Avrg_CO2]
-from [GreenhouseDW].[stage].[DimDevice]
+from [GreenhouseDW].[stage].[DimDevice] dd
+inner join [edw].[DimDate] as d
+on d.Date= dd.Date
 
 insert into [edw].[FactMeasurement]
 ([GH_ID]
@@ -57,8 +59,8 @@ insert into [edw].[FactMeasurement]
 SELECT
  [GH_ID]
 ,[DE_ID]
-,[D_ID]
-,[T_ID]
+,d.[D_ID]
+,t.[T_ID]
 ,[TempValue]
 ,[HumValue]
 ,[CO2Value]
@@ -70,4 +72,4 @@ on  de.Device_Id=fm.Device_Id
 inner join [edw].[DimDate] as d
 on d.Date=fm.Date
 inner join [edw].[DimTime] as t
-on  t.Time=fm.Time;
+on datepart(minute, t.Time) = datepart(minute, fm.Date);
