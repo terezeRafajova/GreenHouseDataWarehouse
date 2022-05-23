@@ -1,4 +1,4 @@
-use GreenHouseDW
+use GreenhouseDW
 go
 
 create schema et1
@@ -25,8 +25,8 @@ update [edw].[DimDevice] set ValidFrom = 20220520, ValidTo = 99990101
 
 /* first we need to update data in stage table so we can compare it with data in edw tables */
 /* Load to stage DimGreenhouse */
-TRUNCATE TABLE [stage].[DimGreenhouse]
-INSERT INTO [stage].[DimGreenhouse]
+truncate table [stage].[DimGreenhouse]
+insert into [stage].[DimGreenhouse]
 (Greenhouse_Id
 ,[Name]
 ,[Description]
@@ -42,8 +42,7 @@ SELECT
       ,[co2Preferred]
       ,[temperaturePreferred]
       ,[humidityPreferred]
-FROM [GreenhouseDB].[dbo].[Greenhouses]
-go
+FROM [GreenHouse].[dbo].[Greenhouses]
 
 /* Load to stage DimDevice */
 truncate table [stage].[DimDevice]
@@ -62,7 +61,7 @@ insert into [stage].[DimDevice]
 [Avrg_CO2])
 SELECT
 [Id_Greenhouse],
-[date],
+CONVERT(DATE, [date]),
 MIN(temperature),
 MAX(temperature),
 AVG(temperature),
@@ -72,30 +71,9 @@ AVG(humidity),
 MIN(co2),
 MAX(co2),
 AVG(co2)
-FROM [GreenhouseDB].[dbo].[Logs]
-group by Id_Greenhouse, date
+FROM [GreenHouse].[dbo].[Logs]
+group by CONVERT(DATE, [date]), Id_Greenhouse;
 
-/* Load to FactMeasurement */
-truncate table [stage].[FactMeasurement]
-insert into [stage].[FactMeasurement]
-(
-[Greenhouse_Id],
-[Device_Id],
-[Date],
-[TempValue],
-[HumValue],
-[CO2Value]
-)
-SELECT
-gh.[Id_Greenhouse],
-gh.[Id_Greenhouse],
-l.[Date],
-l.[temperature],
-l.[humidity],
-l.[co2]
-FROM [GreenhouseDB].[dbo].[Greenhouses] gh
-inner join [GreenhouseDB].[dbo].Logs l
-on gh.Id_Greenhouse=l.Id_Greenhouse
 
 --Incremental load-----------
 ---DimGreenhouse--------------------------------------------------------------------------------------------------------------------------------------------
@@ -253,7 +231,12 @@ from [GreenhouseDW].[stage].[DimDevice] dd
 	from [edw].[DimDevice]
 	where validTo = 99990101);
 
-
+	declare @LastLoadDate int
+set @LastLoadDate = (Select max([LastLoadDate]) FROM [et1].[LogUpdate] where [Table] = 'DimDevice')
+declare @NewLoadDate int
+set @NewLoadDate = CONVERT(char(8), getdate(),112)
+declare @FutureDate int
+set @FutureDate = 99990101
   --when smth changed--
 SELECT [Device_Id]
 	,[D_ID]
@@ -315,7 +298,9 @@ except select  [Device_Id]
 	,[Avrg_Hum]
 	,[Min_CO2]
 	,[Max_CO2]
-	,[Avrg_CO2])
+	,[Avrg_CO2]
+	,[ValidFrom]
+	,[ValidTo])
 SELECT[Device_Id]
 	,[D_ID]
 	,[Min_Temp]

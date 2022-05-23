@@ -3,7 +3,7 @@ go
 
 Declare @LastLoadDate datetime
 SET @LastLoadDate = (select [Date] 
-	from [DAI].[edw].[DimDate]
+	from [GreenhouseDW].[edw].[DimDate]
 	where D_ID in (select MAX([LastLoadDate]) FROM [et1].[LogUpdate] where [Table] = 'FactMeasurement'));
 
 
@@ -31,8 +31,8 @@ l.[Date],
 l.[temperature],
 l.[humidity],
 l.[co2]
-FROM [GreenhouseDB].[dbo].[Greenhouses] gh
-inner join [GreenhouseDB].[dbo].Logs l
+FROM [GreenHouse].[dbo].[Greenhouses] gh
+inner join [GreenHouse].[dbo].Logs l
 on gh.Id_Greenhouse=l.Id_Greenhouse
 where l.date > @LastLoadDate; --only new measurements load to FactMeasurement
 
@@ -47,7 +47,7 @@ INSERT INTO [edw].[FactMeasurement]
 	,[CO2Value])
 	SELECT
 	 [GH_ID]
-	,[DE_ID]
+	,de.[DE_ID]
 	,d.[D_ID]
 	,t.[T_ID]
 	,[TempValue]
@@ -55,13 +55,13 @@ INSERT INTO [edw].[FactMeasurement]
 	,[CO2Value]
 	from [GreenhouseDW].[stage].FactMeasurement fm
 	inner join [GreenhouseDW].[edw].[DimGreenhouse] gh
-	on gh.Greenhouse_Id=fm.Greenhouse_Id
-	inner join [GreenhouseDW].[edw].[DimDevice] de
-	on  de.Device_Id=fm.Device_Id
+	on gh.Greenhouse_Id = fm.Greenhouse_Id
 	inner join [edw].[DimDate] as d
-	on d.Date=fm.Date
+	on d.Date = CONVERT(DATE, fm.[Date])
 	inner join [edw].[DimTime] as t
-	on datepart(minute, t.Time) = datepart(minute, fm.Date)
+	on (datepart(minute, t.Time) = datepart(minute, fm.Date)) and (datepart(hour, t.Time) = datepart(hour, fm.Date))
+	inner join [GreenhouseDW].[edw].[DimDevice] de
+	on  de.Device_Id=fm.Device_Id and de.D_Id = CONVERT(Char(8), fm.Date, 112)
 	where gh.ValidTo = 99990101
 	and de.ValidTo = 99990101;   ---compering with data in other dimension and getting the ones that are up to date 
 

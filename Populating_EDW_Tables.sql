@@ -1,4 +1,4 @@
-use GreenHouseDW
+use GreenhouseDW
 go
 
 insert into [edw].[DimGreenhouse]
@@ -58,7 +58,7 @@ insert into [edw].[FactMeasurement]
 ,[CO2Value])
 SELECT
  [GH_ID]
-,[DE_ID]
+,de.[DE_ID]
 ,d.[D_ID]
 ,t.[T_ID]
 ,[TempValue]
@@ -66,10 +66,10 @@ SELECT
 ,[CO2Value]
 from [GreenhouseDW].[stage].FactMeasurement fm
 inner join [GreenhouseDW].[edw].[DimGreenhouse] gh
-on gh.Greenhouse_Id=fm.Greenhouse_Id
-inner join [GreenhouseDW].[edw].[DimDevice] de
-on  de.Device_Id=fm.Device_Id
+on gh.Greenhouse_Id = fm.Greenhouse_Id
 inner join [edw].[DimDate] as d
-on d.Date=fm.Date
+on d.Date = CONVERT(DATE, fm.[Date])
 inner join [edw].[DimTime] as t
-on datepart(minute, t.Time) = datepart(minute, fm.Date);
+on (datepart(minute, t.Time) = datepart(minute, fm.Date)) and (datepart(hour, t.Time) = datepart(hour, fm.Date))
+inner join [GreenhouseDW].[edw].[DimDevice] de
+on  de.Device_Id=fm.Device_Id and de.D_Id = CONVERT(Char(8), fm.Date, 112)

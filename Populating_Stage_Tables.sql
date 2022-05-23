@@ -1,4 +1,4 @@
-use GreenHouseDW
+use GreenhouseDW
 go
 
 truncate table [stage].[DimGreenhouse]
@@ -18,7 +18,7 @@ SELECT
       ,[co2Preferred]
       ,[temperaturePreferred]
       ,[humidityPreferred]
-FROM [GreenhouseDB].[dbo].[Greenhouses]
+FROM [GreenHouse].[dbo].[Greenhouses]
 
 truncate table [stage].[DimDevice]
 insert into [stage].[DimDevice]
@@ -36,7 +36,7 @@ insert into [stage].[DimDevice]
 [Avrg_CO2])
 SELECT
 [Id_Greenhouse],
-[date],
+CONVERT(DATE, [date]),
 MIN(temperature),
 MAX(temperature),
 AVG(temperature),
@@ -46,8 +46,9 @@ AVG(humidity),
 MIN(co2),
 MAX(co2),
 AVG(co2)
-FROM [GreenhouseDB].[dbo].[Logs]
-group by Id_Greenhouse, date
+FROM [GreenHouse].[dbo].[Logs]
+group by CONVERT(DATE, [date]), Id_Greenhouse;
+
 
 truncate table [stage].[FactMeasurement]
 insert into [stage].[FactMeasurement]
@@ -66,6 +67,6 @@ l.[Date],
 l.[temperature],
 l.[humidity],
 l.[co2]
-FROM [GreenhouseDB].[dbo].[Greenhouses] gh
-inner join [GreenhouseDB].[dbo].Logs l
+FROM [GreenHouse].[dbo].[Greenhouses] gh
+inner join [GreenHouse].[dbo].Logs l
 on gh.Id_Greenhouse=l.Id_Greenhouse
