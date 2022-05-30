@@ -70,3 +70,15 @@ l.[co2]
 FROM [GreenHouse].[dbo].[Greenhouses] gh
 inner join [GreenHouse].[dbo].Logs l
 on gh.Id_Greenhouse=l.Id_Greenhouse
+
+
+
+
+-----------------cleaning the tables 
+update stage.[DimGreenhouse]
+set Description = 'UNNOKNOWN' 
+where Description is null 
+
+update stage.[DimGreenhouse]
+set Name = 'UNNOKNOWN' 
+where Name is null 
