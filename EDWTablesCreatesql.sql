@@ -70,6 +70,7 @@ CREATE TABLE [edw].[DimTime](
 	[T_ID] [int] NOT NULL,
 	[Time] [datetime] not null, 
 	[Hour] [int] NOT NULL,
+	[MinuteHour] [Time] not null, 
 	[Minute] [int] NOT NULL,
 	[Quarter] [int] NOT NULL
 Constraint [PK_DimTime] PRIMARY KEY CLUSTERED
@@ -104,6 +105,7 @@ While datepart(day,@defaultTime) = 1
 		insert into edw.[DimTime]([T_ID], [Time], [Hour],[Minute], [Quarter])
 		select  @hour*100+@minute as [T_ID],
 				@defaultTime as [Time],
+				cast(@defaultTime as time) as [time],
 				@hour as [Hour], 
 				@minute as [Minute], 
 				@QarterNumber as [Quarter]
