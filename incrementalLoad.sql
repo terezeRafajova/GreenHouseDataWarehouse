@@ -231,12 +231,6 @@ from [GreenhouseDW].[stage].[DimDevice] dd
 	from [edw].[DimDevice]
 	where validTo = 99990101);
 
-	declare @LastLoadDate int
-set @LastLoadDate = (Select max([LastLoadDate]) FROM [et1].[LogUpdate] where [Table] = 'DimDevice')
-declare @NewLoadDate int
-set @NewLoadDate = CONVERT(char(8), getdate(),112)
-declare @FutureDate int
-set @FutureDate = 99990101
   --when smth changed--
 SELECT [Device_Id]
 	,[D_ID]
